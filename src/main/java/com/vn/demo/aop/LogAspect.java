@@ -1,19 +1,27 @@
 package com.vn.demo.aop;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
 import com.vn.demo.entity.LogDetail;
 import com.vn.demo.entity.LogEntity;
 import com.vn.demo.helper.LogHelper;
 import com.vn.demo.service.LogDetailService;
 import com.vn.demo.service.LogService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +35,8 @@ public class LogAspect {
     private final LogHelper logHelper;
     private final LogService logService;
     private final LogDetailService logDetailService;
+    private final ObjectMapper objectMapper;
+    private final Gson gson;
 
 
     @AfterReturning("@annotation(Log)")
@@ -38,6 +48,7 @@ public class LogAspect {
                 .idObject(logHelper.getId())
                 .action(action(joinPoint))
                 .function(function(joinPoint))
+                .payLoad(getPayload(joinPoint))
                 .createdDate(LocalDateTime.now())
                 .build();
         LogEntity logEntitySave = logService.save(logEntity);
@@ -87,7 +98,19 @@ public class LogAspect {
             Log logAround = implementationMethod.getAnnotation(Log.class);
             function = logAround.function().name();
         }
+
         return function;
     }
 
+
+    private String getPayload(JoinPoint joinPoint) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < joinPoint.getArgs().length; i++) {
+            String arg = gson.toJson(joinPoint.getArgs()[i]);
+            builder.append(arg);
+        }
+        return builder.toString();
+    }
+
 }
+

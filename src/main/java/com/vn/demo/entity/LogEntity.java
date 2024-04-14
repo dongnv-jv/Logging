@@ -21,5 +21,6 @@ public class LogEntity {
     private Long idObject;
     private String action;
     private String function;
+    private String payLoad;
     private LocalDateTime createdDate;
 }
