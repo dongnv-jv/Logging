@@ -1,5 +1,6 @@
 package com.vn.demo.aop;
 
+import com.google.gson.Gson;
 import com.vn.demo.entity.LogDetail;
 import com.vn.demo.entity.LogEntity;
 import com.vn.demo.helper.LogHelper;
@@ -27,6 +28,7 @@ public class LogAspect {
     private final LogHelper logHelper;
     private final LogService logService;
     private final LogDetailService logDetailService;
+    private final Gson gson;
 
 
     @AfterReturning("@annotation(Log)")
@@ -38,6 +40,7 @@ public class LogAspect {
                 .idObject(logHelper.getId())
                 .action(action(joinPoint))
                 .function(function(joinPoint))
+                .payLoad(getPayload(joinPoint))
                 .createdDate(LocalDateTime.now())
                 .build();
         LogEntity logEntitySave = logService.save(logEntity);
@@ -90,4 +93,15 @@ public class LogAspect {
         return function;
     }
 
+
+    private String getPayload(JoinPoint joinPoint) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < joinPoint.getArgs().length; i++) {
+            String arg = gson.toJson(joinPoint.getArgs()[i]);
+            builder.append(arg);
+        }
+        return builder.toString();
+    }
+
 }
+

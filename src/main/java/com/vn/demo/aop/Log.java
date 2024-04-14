@@ -13,5 +13,6 @@ import java.lang.annotation.Target;
 public @interface Log {
 
     LogActionEnum action();
-    LogFunctionEnum function() ;
+
+    LogFunctionEnum function();
 }

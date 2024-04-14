@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class RequestInsert {
 
-    private Long Id;
+    private Long id;
     private String name;
     private int age;
 }

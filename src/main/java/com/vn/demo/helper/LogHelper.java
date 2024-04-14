@@ -22,6 +22,7 @@ public class LogHelper {
     public Map<String, List<Object>> getDifferenceField() {
         return differenceField.get();
     }
+
     public Long getId() {
         return id.get();
     }

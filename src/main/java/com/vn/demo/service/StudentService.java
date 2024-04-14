@@ -25,7 +25,7 @@ public class StudentService {
         return repository.save(student);
     }
 
-    @Log(action = LogActionEnum.UPDATE,function = LogFunctionEnum.STUDENT_MANAGER)
+    @Log(action = LogActionEnum.UPDATE, function = LogFunctionEnum.STUDENT_MANAGER)
     public Student update(RequestInsert requestInsert) {
         Long id = requestInsert.getId();
         Student student = repository.findById(id).orElse(null);

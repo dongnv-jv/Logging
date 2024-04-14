@@ -15,6 +15,7 @@ public class LogService {
     public LogEntity save(LogEntity log) {
         return logRepository.save(log);
     }
+
     public LogEntity get(Long id) {
         return logRepository.findById(id).orElse(null);
     }
