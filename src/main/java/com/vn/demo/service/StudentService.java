@@ -9,6 +9,8 @@ import com.vn.demo.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class StudentService {
@@ -17,10 +19,12 @@ public class StudentService {
 
 
     public Student save(Student student) {
+
+        student.setCreatedDate(LocalDateTime.now());
         return repository.save(student);
     }
 
-    @Log(action = LogActionEnum.UPDATE, function = LogFunctionEnum.STUDENT_MANAGER)
+
     public Student update(RequestInsert requestInsert) {
         Long id = requestInsert.getId();
         Student student = repository.findById(id).orElse(null);
