@@ -7,13 +7,20 @@ import com.vn.demo.entity.Student;
 import com.vn.demo.factory.RequestInsert;
 import com.vn.demo.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,5 +61,63 @@ public class StudentController {
         studentList = studentStream.collect(Collectors.toList());
 
         return ResponseEntity.ok(studentList);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<StreamingResponseBody> exportDataToExcel() {
+        StreamingResponseBody responseBody = outputStream -> {
+            try (Workbook workbook = new XSSFWorkbook()) {
+                Sheet sheet = workbook.createSheet("Data");
+
+
+                Stream<Student> entityStream = studentService.get();
+
+                int rowNum = 0;
+                for (Student entity : (Iterable<Student>) entityStream::iterator) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(entity.getAge());
+                    row.createCell(1).setCellValue(entity.getName());
+                    row.createCell(2).setCellValue(entity.getCreatedDate());
+                }
+
+                // Write workbook to output stream
+                workbook.write(outputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Content-Disposition", "attachment; filename=data.xlsx")
+                .body(responseBody);
+    }
+
+    @GetMapping("/export-all")
+    public ResponseEntity<StreamingResponseBody> exportDataToExcelAll() {
+        StreamingResponseBody responseBody = outputStream -> {
+            try (Workbook workbook = new XSSFWorkbook()) {
+                Sheet sheet = workbook.createSheet("Data");
+
+
+                List<Student> entityLst = studentService.getAll();
+
+                int rowNum = 0;
+                for (Student entity : entityLst) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(entity.getAge());
+                    row.createCell(1).setCellValue(entity.getName());
+                    row.createCell(2).setCellValue(entity.getCreatedDate());
+                }
+
+                // Write workbook to output stream
+                workbook.write(outputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Content-Disposition", "attachment; filename=data.xlsx")
+                .body(responseBody);
     }
 }

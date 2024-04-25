@@ -58,6 +58,13 @@ public class StudentService {
 
     }
 
+    public List<Student> getAll() {
+
+        return repository.findAll();
+
+
+    }
+
     public Student update(RequestInsert requestInsert) {
         Long id = requestInsert.getId();
         Student student = repository.findById(id).orElse(null);
